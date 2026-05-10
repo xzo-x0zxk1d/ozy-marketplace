@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
@@ -11,10 +10,12 @@ import styles from "./Navbar.module.css";
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
+    setMounted(true);
     setUser(getCurrentUser());
   }, [pathname]);
 
@@ -44,7 +45,7 @@ export default function Navbar() {
             <ShoppingBag size={15} />
             Browse
           </Link>
-          {user && (
+          {mounted && user && (
             <Link href="/marketplace/new" className={styles.link}>
               <Plus size={15} />
               List Item
@@ -54,16 +55,22 @@ export default function Navbar() {
 
         {/* Right side */}
         <div className={styles.right}>
-          {user ? (
-            <>
-              <div className={styles.userBadge}>
-                <Zap size={13} className={styles.zapIcon} />
-                <span className={styles.discordTag}>{user.discordUsername}</span>
-              </div>
-              <button onClick={logout} className={styles.logoutBtn} title="Logout">
-                <LogOut size={15} />
-              </button>
-            </>
+          {mounted ? (
+            user ? (
+              <>
+                <div className={styles.userBadge}>
+                  <Zap size={13} className={styles.zapIcon} />
+                  <span className={styles.discordTag}>{user.discordUsername}</span>
+                </div>
+                <button onClick={logout} className={styles.logoutBtn} title="Logout">
+                  <LogOut size={15} />
+                </button>
+              </>
+            ) : (
+              <Link href="/" className={styles.loginBtn}>
+                Login / Register
+              </Link>
+            )
           ) : (
             <Link href="/" className={styles.loginBtn}>
               Login / Register
@@ -86,19 +93,21 @@ export default function Navbar() {
           <Link href="/marketplace" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>
             Browse Listings
           </Link>
-          {user && (
+          {mounted && user && (
             <Link href="/marketplace/new" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>
               List an Item
             </Link>
           )}
-          {user ? (
-            <button onClick={logout} className={styles.mobileLogout}>
-              Logout ({user.username})
-            </button>
-          ) : (
-            <Link href="/" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-              Login / Register
-            </Link>
+          {mounted && (
+            user ? (
+              <button onClick={logout} className={styles.mobileLogout}>
+                Logout ({user.username})
+              </button>
+            ) : (
+              <Link href="/" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>
+                Login / Register
+              </Link>
+            )
           )}
         </div>
       )}

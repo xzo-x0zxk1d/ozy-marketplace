@@ -86,28 +86,56 @@ export default function NewListingPage() {
             <h2 className={styles.sectionTitle}>Item Details</h2>
             <div className={styles.field}>
               <label className={styles.label}>Title <span className={styles.req}>*</span></label>
-              <input type="text" placeholder="e.g. Dominus Frigidus" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={80} />
+              <input
+                type="text"
+                placeholder="e.g. Dominus Frigidus"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                maxLength={80}
+                className={styles.input}
+              />
               <span className={styles.count}>{title.length}/80</span>
             </div>
             <div className={styles.field}>
               <label className={styles.label}>Description <span className={styles.req}>*</span></label>
-              <textarea placeholder="Describe your item — condition details, what's included, trade preferences..." value={description} onChange={(e) => setDescription(e.target.value)} rows={4} maxLength={500} className={styles.textarea} />
+              <textarea
+                placeholder="Describe your item — condition details, what's included, trade preferences..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={4}
+                maxLength={500}
+                className={`${styles.input} ${styles.textarea}`}
+              />
               <span className={styles.count}>{description.length}/500</span>
             </div>
             <div className={styles.row}>
               <div className={styles.field}>
                 <label className={styles.label}>Price / Asking <span className={styles.req}>*</span></label>
-                <input type="text" placeholder="e.g. 1500 Robux or $5 PayPal" value={price} onChange={(e) => setPrice(e.target.value)} />
+                <input
+                  type="text"
+                  placeholder="e.g. 1500 Robux or $5 PayPal"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  className={styles.input}
+                />
               </div>
               <div className={styles.field}>
                 <label className={styles.label}>Category</label>
-                <select value={category} onChange={(e) => setCategory(e.target.value as ListingCategory)}>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value as ListingCategory)}
+                  className={styles.input}
+                >
                   {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
                 </select>
               </div>
               <div className={styles.field}>
                 <label className={styles.label}>Condition</label>
-                <select value={condition} onChange={(e) => setCondition(e.target.value as ListingCondition)}>
+                <select
+                  value={condition}
+                  onChange={(e) => setCondition(e.target.value as ListingCondition)}
+                  className={styles.input}
+                >
                   {CONDITIONS.map((c) => <option key={c}>{c}</option>)}
                 </select>
               </div>
@@ -120,7 +148,13 @@ export default function NewListingPage() {
             <h2 className={styles.sectionTitle}><ImageIcon size={16} /> Image (optional)</h2>
             <div className={styles.field}>
               <label className={styles.label}>Image URL</label>
-              <input type="url" placeholder="https://tr.rbxcdn.com/..." value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+              <input
+                type="url"
+                placeholder="https://tr.rbxcdn.com/..."
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                className={styles.input}
+              />
               <span className={styles.fieldNote}>Paste a direct image link (Roblox CDN, Imgur, etc.)</span>
             </div>
             {imageUrl && (
@@ -135,7 +169,14 @@ export default function NewListingPage() {
           <div className={styles.section}>
             <h2 className={styles.sectionTitle}><Tag size={16} /> Tags (optional)</h2>
             <div className={styles.tagRow}>
-              <input type="text" placeholder="Add a tag and press Enter" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }} className={styles.tagInput} />
+              <input
+                type="text"
+                placeholder="Add a tag and press Enter"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
+                className={`${styles.input} ${styles.tagInput}`}
+              />
               <button className={styles.addTagBtn} onClick={addTag} disabled={tags.length >= 6}><Plus size={14} /></button>
             </div>
             {tags.length > 0 && (

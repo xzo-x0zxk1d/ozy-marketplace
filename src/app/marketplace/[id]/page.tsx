@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getListings, getCurrentUser, deleteListing, bumpListing, incrementViews } from "@/lib/storage";
 import { Listing } from "@/lib/types";
-import { ArrowLeft, MessageSquare, Eye, Clock, Tag, Zap, Package, Trash2, ExternalLink, Shield, AlertTriangle, Copy, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, MessageSquare, Eye, Clock, Tag, Zap, Package, Trash2, ExternalLink, Shield, AlertTriangle, Copy, Check, Loader2, ImageOff } from "lucide-react";
 import styles from "./page.module.css";
 
 function timeAgo(iso: string): string {
@@ -100,7 +100,7 @@ export default function ListingPage() {
               <img src={listing.imageUrl} alt={listing.title} className={styles.image} />
             ) : (
               <div className={styles.imagePlaceholder}>
-                <Package size={64} style={{ color: "var(--text-muted)", opacity: 0.4 }} />
+                <ImageOff size={52} strokeWidth={1.5} />
                 <span>No image provided</span>
               </div>
             )}
