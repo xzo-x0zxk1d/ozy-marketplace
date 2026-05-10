@@ -1,0 +1,198 @@
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(13, 13, 13, 0.92);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+}
+
+.inner {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logoImg {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.logoText {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--red-accent);
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+.logoSub {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  display: none;
+}
+
+@media (min-width: 500px) {
+  .logoSub { display: block; }
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  transition: all 0.15s;
+}
+
+.link:hover {
+  color: var(--text);
+  background: var(--red-faint);
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.userBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--red-faint);
+  border: 1px solid var(--red-primary);
+  border-radius: 20px;
+  padding: 4px 12px 4px 8px;
+}
+
+.zapIcon {
+  color: var(--red-accent);
+}
+
+.discordTag {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  font-family: var(--font-mono);
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logoutBtn {
+  background: transparent;
+  color: var(--text-dim);
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.logoutBtn:hover {
+  color: var(--red-accent);
+  background: var(--red-faint);
+}
+
+.loginBtn {
+  background: var(--red-primary);
+  color: var(--text) !important;
+  padding: 7px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.loginBtn:hover {
+  background: var(--red-accent);
+}
+
+.hamburger {
+  display: none;
+  background: transparent;
+  color: var(--text-dim);
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.hamburger:hover { color: var(--text); }
+
+@media (max-width: 640px) {
+  .links { display: none; }
+  .hamburger { display: flex; }
+  .userBadge { display: none; }
+}
+
+.mobileMenu {
+  border-top: 1px solid var(--border);
+  padding: 12px 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--panel2);
+}
+
+.mobileLink {
+  display: block;
+  padding: 10px 14px;
+  color: var(--text-dim);
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.mobileLink:hover {
+  color: var(--text);
+  background: var(--red-faint);
+}
+
+.mobileLogout {
+  background: transparent;
+  color: var(--red-accent);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 6px;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.mobileLogout:hover {
+  background: var(--red-faint);
+}
