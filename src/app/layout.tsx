@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Ozy Marketplace – Best Roblox Random Marketplace",
+  title: "Ozy Marketplace – Roblox Marketplace for Items & Services",
   description:
-    "The #1 Roblox random item marketplace. List, buy, and trade Roblox items through Discord DMs. Made by Ozyrion.",
+    "Buy, sell, trade Roblox items, hire skilled people, and showcase services on Ozy Marketplace. Connect through Discord DMs. Made by Ozyrion.",
+
   icons: {
     icon: "https://www.image2url.com/r2/default/images/1777298691743-e9df5773-13ca-4a33-b269-ff3357c8910a.png",
   },
