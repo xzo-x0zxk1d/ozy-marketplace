@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getCurrentUser, saveListing, generateId } from "@/lib/storage";
 import { CATEGORIES, CONDITIONS, ListingCategory, ListingCondition } from "@/lib/types";
-import { ArrowLeft, Plus, Tag, Image as ImageIcon, AlertCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, Tag, AlertCircle, Loader2, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
+import ImageUploader from "@/components/ImageUploader";
 import styles from "./page.module.css";
 
 export default function NewListingPage() {
@@ -16,11 +17,14 @@ export default function NewListingPage() {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState<ListingCategory>("Limiteds");
   const [condition, setCondition] = useState<ListingCondition>("Mint");
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState("");       // uploaded supabase URL
+  const [externalUrl, setExternalUrl] = useState(""); // manual URL fallback
+  const [useExternal, setUseExternal] = useState(false);
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [listingId] = useState(() => generateId());
   const [user, setUser] = useState(getCurrentUser());
 
   useEffect(() => {
@@ -37,6 +41,8 @@ export default function NewListingPage() {
 
   const removeTag = (t: string) => setTags(tags.filter((x) => x !== t));
 
+  const finalImageUrl = useExternal ? externalUrl.trim() : imageUrl;
+
   const submit = async () => {
     setError("");
     const u = getCurrentUser();
@@ -48,13 +54,13 @@ export default function NewListingPage() {
     setLoading(true);
     try {
       const listing = {
-        id: generateId(),
+        id: listingId,
         title: title.trim(),
         description: description.trim(),
         price: price.trim(),
         category,
         condition,
-        imageUrl: imageUrl.trim() || undefined,
+        imageUrl: finalImageUrl || undefined,
         sellerUsername: u.username,
         sellerDiscord: u.discordUsername,
         createdAt: new Date().toISOString(),
@@ -82,60 +88,33 @@ export default function NewListingPage() {
         </div>
 
         <div className={styles.card}>
+          {/* Item Details */}
           <div className={styles.section}>
             <h2 className={styles.sectionTitle}>Item Details</h2>
             <div className={styles.field}>
               <label className={styles.label}>Title <span className={styles.req}>*</span></label>
-              <input
-                type="text"
-                placeholder="e.g. Dominus Frigidus"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                maxLength={80}
-                className={styles.input}
-              />
+              <input type="text" placeholder="e.g. Dominus Frigidus" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={80} />
               <span className={styles.count}>{title.length}/80</span>
             </div>
             <div className={styles.field}>
               <label className={styles.label}>Description <span className={styles.req}>*</span></label>
-              <textarea
-                placeholder="Describe your item — condition details, what's included, trade preferences..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={4}
-                maxLength={500}
-                className={`${styles.input} ${styles.textarea}`}
-              />
+              <textarea placeholder="Describe your item — condition details, what's included, trade preferences..." value={description} onChange={(e) => setDescription(e.target.value)} rows={4} maxLength={500} className={styles.textarea} />
               <span className={styles.count}>{description.length}/500</span>
             </div>
             <div className={styles.row}>
               <div className={styles.field}>
                 <label className={styles.label}>Price / Asking <span className={styles.req}>*</span></label>
-                <input
-                  type="text"
-                  placeholder="e.g. 1500 Robux or $5 PayPal"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  className={styles.input}
-                />
+                <input type="text" placeholder="e.g. 1500 Robux or $5 PayPal" value={price} onChange={(e) => setPrice(e.target.value)} />
               </div>
               <div className={styles.field}>
                 <label className={styles.label}>Category</label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value as ListingCategory)}
-                  className={styles.input}
-                >
+                <select value={category} onChange={(e) => setCategory(e.target.value as ListingCategory)}>
                   {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
                 </select>
               </div>
               <div className={styles.field}>
                 <label className={styles.label}>Condition</label>
-                <select
-                  value={condition}
-                  onChange={(e) => setCondition(e.target.value as ListingCondition)}
-                  className={styles.input}
-                >
+                <select value={condition} onChange={(e) => setCondition(e.target.value as ListingCondition)}>
                   {CONDITIONS.map((c) => <option key={c}>{c}</option>)}
                 </select>
               </div>
@@ -144,39 +123,57 @@ export default function NewListingPage() {
 
           <div className={styles.divider} />
 
+          {/* Image */}
           <div className={styles.section}>
-            <h2 className={styles.sectionTitle}><ImageIcon size={16} /> Image (optional)</h2>
-            <div className={styles.field}>
-              <label className={styles.label}>Image URL</label>
-              <input
-                type="url"
-                placeholder="https://tr.rbxcdn.com/..."
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                className={styles.input}
-              />
-              <span className={styles.fieldNote}>Paste a direct image link (Roblox CDN, Imgur, etc.)</span>
+            <div className={styles.imageSectionHeader}>
+              <h2 className={styles.sectionTitle}>Item Image</h2>
+              <div className={styles.imageToggle}>
+                <button
+                  className={`${styles.toggleBtn} ${!useExternal ? styles.toggleActive : ""}`}
+                  onClick={() => setUseExternal(false)}
+                >
+                  Upload
+                </button>
+                <button
+                  className={`${styles.toggleBtn} ${useExternal ? styles.toggleActive : ""}`}
+                  onClick={() => setUseExternal(true)}
+                >
+                  <LinkIcon size={12} /> URL
+                </button>
+              </div>
             </div>
-            {imageUrl && (
-              <div className={styles.imgPreview}>
-                <img src={imageUrl} alt="preview" className={styles.previewImg} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+
+            {!useExternal ? (
+              <ImageUploader
+                listingId={listingId}
+                onUploaded={(url) => setImageUrl(url || "")}
+                currentUrl={imageUrl || undefined}
+              />
+            ) : (
+              <div className={styles.field}>
+                <input
+                  type="url"
+                  placeholder="https://tr.rbxcdn.com/..."
+                  value={externalUrl}
+                  onChange={(e) => setExternalUrl(e.target.value)}
+                />
+                <span className={styles.fieldNote}>Paste a direct image link (Roblox CDN, Imgur, etc.) — permanent, no expiry</span>
+                {externalUrl && (
+                  <div className={styles.imgPreview}>
+                    <img src={externalUrl} alt="preview" className={styles.previewImg} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                  </div>
+                )}
               </div>
             )}
           </div>
 
           <div className={styles.divider} />
 
+          {/* Tags */}
           <div className={styles.section}>
             <h2 className={styles.sectionTitle}><Tag size={16} /> Tags (optional)</h2>
             <div className={styles.tagRow}>
-              <input
-                type="text"
-                placeholder="Add a tag and press Enter"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
-                className={`${styles.input} ${styles.tagInput}`}
-              />
+              <input type="text" placeholder="Add a tag and press Enter" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }} className={styles.tagInput} />
               <button className={styles.addTagBtn} onClick={addTag} disabled={tags.length >= 6}><Plus size={14} /></button>
             </div>
             {tags.length > 0 && (

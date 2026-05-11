@@ -1,0 +1,242 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.zone {
+  border: 2px dashed var(--border-bright);
+  border-radius: 12px;
+  background: var(--panel2);
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.zone:hover {
+  border-color: var(--red-accent);
+  background: var(--red-faint);
+}
+
+.dragging {
+  border-color: var(--red-accent) !important;
+  background: var(--red-faint) !important;
+  box-shadow: 0 0 0 4px rgba(179, 38, 59, 0.15);
+}
+
+.hasPreview {
+  cursor: default;
+  border-style: solid;
+  border-color: var(--border);
+  min-height: 220px;
+}
+
+/* Empty state */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 32px 20px;
+  text-align: center;
+  user-select: none;
+}
+
+.noImageIcon {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.noImgSvg {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* The diagonal red strike-through line */
+.noImageIcon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80%;
+  height: 2px;
+  background: var(--red-accent);
+  opacity: 0.7;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  border-radius: 2px;
+}
+
+.emptyText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.emptyMain {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.emptyMain u {
+  color: var(--red-accent);
+  text-decoration-color: var(--red-accent);
+}
+
+.emptySub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.uploadIconWrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--red-faint);
+  border: 1px solid var(--red-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.uploadIcon {
+  color: var(--red-accent);
+}
+
+/* Uploading state */
+.uploading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.uploadingImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(4px) brightness(0.4);
+}
+
+.uploadingOverlay {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.spinner {
+  color: var(--red-accent);
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Preview state */
+.preview {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+}
+
+.previewImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.previewOverlay {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  background: linear-gradient(transparent, rgba(0,0,0,0.75));
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.checkIcon {
+  color: var(--green);
+  flex-shrink: 0;
+}
+
+.expiry {
+  margin-left: auto;
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  font-style: italic;
+}
+
+.clearBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  background: rgba(0,0,0,0.7);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.clearBtn:hover {
+  background: rgba(179, 38, 59, 0.8);
+}
+
+/* Hidden file input */
+.hiddenInput {
+  display: none;
+}
+
+/* Error */
+.error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.08);
+  border: 1px solid rgba(231, 76, 60, 0.25);
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+/* Note */
+.note {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  line-height: 1.5;
+}

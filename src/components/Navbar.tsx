@@ -1,29 +1,28 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { getCurrentUser, setCurrentUser } from "@/lib/storage";
 import { User } from "@/lib/types";
-import { ShoppingBag, Plus, LogOut, Menu, X, Zap } from "lucide-react";
+import { ShoppingBag, Wrench, Plus, LogOut, Menu, X, Zap } from "lucide-react";
 import styles from "./Navbar.module.css";
 
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    setMounted(true);
-    setUser(getCurrentUser());
-  }, [pathname]);
+  useEffect(() => { setUser(getCurrentUser()); }, [pathname]);
 
   const logout = () => {
     setCurrentUser(null);
     setUser(null);
     router.push("/");
   };
+
+  const isActive = (path: string) => pathname.startsWith(path);
 
   return (
     <nav className={styles.nav}>
@@ -41,47 +40,42 @@ export default function Navbar() {
 
         {/* Desktop nav */}
         <div className={styles.links}>
-          <Link href="/marketplace" className={styles.link}>
-            <ShoppingBag size={15} />
-            Browse
+          <Link href="/marketplace" className={`${styles.link} ${isActive("/marketplace") ? styles.linkActive : ""}`}>
+            <ShoppingBag size={14} />
+            Marketplace
           </Link>
-          {mounted && user && (
-            <Link href="/marketplace/new" className={styles.link}>
-              <Plus size={15} />
-              List Item
-            </Link>
+          <Link href="/services" className={`${styles.link} ${isActive("/services") ? styles.linkActive : ""}`}>
+            <Wrench size={14} />
+            Services
+          </Link>
+          {user && (
+            <div className={styles.addMenu}>
+              <Link href="/marketplace/new" className={styles.addLink}>
+                <Plus size={13} />Items
+              </Link>
+              <Link href="/services/new" className={styles.addLink}>
+                <Plus size={13} />Services
+              </Link>
+            </div>
           )}
         </div>
 
         {/* Right side */}
         <div className={styles.right}>
-          {mounted ? (
-            user ? (
-              <>
-                <div className={styles.userBadge}>
-                  <Zap size={13} className={styles.zapIcon} />
-                  <span className={styles.discordTag}>{user.discordUsername}</span>
-                </div>
-                <button onClick={logout} className={styles.logoutBtn} title="Logout">
-                  <LogOut size={15} />
-                </button>
-              </>
-            ) : (
-              <Link href="/" className={styles.loginBtn}>
-                Login / Register
-              </Link>
-            )
+          {user ? (
+            <>
+              <div className={styles.userBadge}>
+                <Zap size={12} className={styles.zapIcon} />
+                <span className={styles.discordTag}>{user.discordUsername}</span>
+              </div>
+              <button onClick={logout} className={styles.logoutBtn} title="Logout">
+                <LogOut size={15} />
+              </button>
+            </>
           ) : (
-            <Link href="/" className={styles.loginBtn}>
-              Login / Register
-            </Link>
+            <Link href="/" className={styles.loginBtn}>Login / Register</Link>
           )}
-
-          {/* Mobile hamburger */}
-          <button
-            className={styles.hamburger}
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
+          <button className={styles.hamburger} onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
@@ -90,24 +84,20 @@ export default function Navbar() {
       {/* Mobile menu */}
       {menuOpen && (
         <div className={styles.mobileMenu}>
-          <Link href="/marketplace" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-            Browse Listings
+          <Link href="/marketplace" className={`${styles.mobileLink} ${isActive("/marketplace") ? styles.mobileLinkActive : ""}`} onClick={() => setMenuOpen(false)}>
+            <ShoppingBag size={15} /> Marketplace
           </Link>
-          {mounted && user && (
-            <Link href="/marketplace/new" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-              List an Item
-            </Link>
-          )}
-          {mounted && (
-            user ? (
-              <button onClick={logout} className={styles.mobileLogout}>
-                Logout ({user.username})
-              </button>
-            ) : (
-              <Link href="/" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-                Login / Register
-              </Link>
-            )
+          <Link href="/services" className={`${styles.mobileLink} ${isActive("/services") ? styles.mobileLinkActive : ""}`} onClick={() => setMenuOpen(false)}>
+            <Wrench size={15} /> Services
+          </Link>
+          {user && <>
+            <Link href="/marketplace/new" className={styles.mobileLink} onClick={() => setMenuOpen(false)}><Plus size={14} /> List an Item</Link>
+            <Link href="/services/new" className={styles.mobileLink} onClick={() => setMenuOpen(false)}><Plus size={14} /> Offer a Service</Link>
+          </>}
+          {user ? (
+            <button onClick={logout} className={styles.mobileLogout}>Logout ({user.username})</button>
+          ) : (
+            <Link href="/" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Login / Register</Link>
           )}
         </div>
       )}

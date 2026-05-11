@@ -42,3 +42,31 @@ create policy "Anyone can update users" on public.users for update using (true);
 -- Index for fast lookups
 create index if not exists listings_created_at_idx on public.listings(created_at desc);
 create index if not exists listings_seller_idx on public.listings(seller_username);
+
+-- Services table
+create table if not exists public.services (
+  id text primary key,
+  title text not null,
+  description text not null,
+  price text not null,
+  category text not null,
+  delivery_time text not null default 'Negotiable',
+  image_url text,
+  seller_username text not null,
+  seller_discord text not null,
+  created_at timestamptz default now(),
+  tags text[] default '{}',
+  views integer default 0,
+  bumps integer default 0,
+  rating numeric(3,1) default 0,
+  reviews integer default 0
+);
+
+alter table public.services enable row level security;
+create policy "Anyone can read services" on public.services for select using (true);
+create policy "Anyone can insert services" on public.services for insert with check (true);
+create policy "Anyone can update services" on public.services for update using (true);
+create policy "Anyone can delete services" on public.services for delete using (true);
+
+create index if not exists services_created_at_idx on public.services(created_at desc);
+create index if not exists services_seller_idx on public.services(seller_username);

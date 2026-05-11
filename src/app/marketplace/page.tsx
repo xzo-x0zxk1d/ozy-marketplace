@@ -4,7 +4,8 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { getListings, getCurrentUser } from "@/lib/storage";
 import { Listing, CATEGORIES, ListingCategory } from "@/lib/types";
-import { Search, Plus, MessageSquare, Eye, Zap, Clock, Tag, Filter, TrendingUp, Package, ChevronDown, Loader2 } from "lucide-react";
+import { Search, Plus, MessageSquare, Eye, Zap, Clock, Tag, Filter, TrendingUp, ChevronDown, Loader2, Package } from "lucide-react";
+import NoImagePlaceholder from "@/components/NoImagePlaceholder";
 import styles from "./page.module.css";
 
 const SORT_OPTIONS = [
@@ -140,7 +141,7 @@ export default function MarketplacePage() {
                   {l.imageUrl ? (
                     <img src={l.imageUrl} alt={l.title} className={styles.itemImg} />
                   ) : (
-                    <div className={styles.imgPlaceholder}><Package size={32} style={{ color: "var(--text-muted)" }} /></div>
+                    <NoImagePlaceholder size="sm" />
                   )}
                   <span className={styles.conditionBadge} style={{ background: conditionColor(l.condition) + "22", color: conditionColor(l.condition), border: `1px solid ${conditionColor(l.condition)}44` }}>{l.condition}</span>
                   {(l.bumps || 0) > 0 && <span className={styles.bumpBadge}><Zap size={10} /> {l.bumps}</span>}

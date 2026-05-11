@@ -47,3 +47,58 @@ export const CATEGORIES: ListingCategory[] = [
 ];
 
 export const CONDITIONS: ListingCondition[] = ["Mint", "Good", "Fair"];
+
+// ── Services ───────────────────────────────────────────────
+
+export type ServiceCategory =
+  | "Scripting"
+  | "Building"
+  | "GFX / Art"
+  | "UI Design"
+  | "Game Dev"
+  | "Thumbnails"
+  | "Voice Acting"
+  | "Moderation"
+  | "Boosting"
+  | "Other";
+
+export interface Service {
+  id: string;
+  title: string;
+  description: string;
+  price: string;
+  category: ServiceCategory;
+  deliveryTime: string;
+  imageUrl?: string;
+  sellerUsername: string;
+  sellerDiscord: string;
+  createdAt: string;
+  tags: string[];
+  views: number;
+  bumps: number;
+  rating: number;
+  reviews: number;
+}
+
+export const SERVICE_CATEGORIES: ServiceCategory[] = [
+  "Scripting",
+  "Building",
+  "GFX / Art",
+  "UI Design",
+  "Game Dev",
+  "Thumbnails",
+  "Voice Acting",
+  "Moderation",
+  "Boosting",
+  "Other",
+];
+
+export const DELIVERY_TIMES = [
+  "< 1 hour",
+  "1–6 hours",
+  "1 day",
+  "2–3 days",
+  "Up to 1 week",
+  "2+ weeks",
+  "Negotiable",
+];

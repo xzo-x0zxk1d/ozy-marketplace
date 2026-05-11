@@ -5,7 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getListings, getCurrentUser, deleteListing, bumpListing, incrementViews } from "@/lib/storage";
 import { Listing } from "@/lib/types";
-import { ArrowLeft, MessageSquare, Eye, Clock, Tag, Zap, Package, Trash2, ExternalLink, Shield, AlertTriangle, Copy, Check, Loader2, ImageOff } from "lucide-react";
+import { ArrowLeft, MessageSquare, Eye, Clock, Tag, Zap, Trash2, ExternalLink, Shield, AlertTriangle, Copy, Check, Loader2, Package } from "lucide-react";
+import NoImagePlaceholder from "@/components/NoImagePlaceholder";
 import styles from "./page.module.css";
 
 function timeAgo(iso: string): string {
@@ -99,10 +100,7 @@ export default function ListingPage() {
             {listing.imageUrl ? (
               <img src={listing.imageUrl} alt={listing.title} className={styles.image} />
             ) : (
-              <div className={styles.imagePlaceholder}>
-                <ImageOff size={52} strokeWidth={1.5} />
-                <span>No image provided</span>
-              </div>
+              <NoImagePlaceholder size="lg" />
             )}
             <div className={styles.badges}>
               <span className={styles.condBadge} style={{ background: conditionColor(listing.condition) + "22", color: conditionColor(listing.condition), border: `1px solid ${conditionColor(listing.condition)}44` }}>{listing.condition}</span>
