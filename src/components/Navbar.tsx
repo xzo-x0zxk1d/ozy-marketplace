@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { getCurrentUser, setCurrentUser } from "@/lib/storage";
 import { User } from "@/lib/types";
-import { ShoppingBag, Wrench, Plus, LogOut, Menu, X, Zap } from "lucide-react";
+import { ShoppingBag, Wrench, Plus, LogOut, Menu, X, Zap, LayoutDashboard } from "lucide-react";
 import styles from "./Navbar.module.css";
 
 export default function Navbar() {
@@ -58,6 +58,12 @@ export default function Navbar() {
               </Link>
             </div>
           )}
+          {user && (
+            <Link href="/dashboard" className={`${styles.link} ${isActive("/dashboard") ? styles.linkActive : ""}`}>
+              <LayoutDashboard size={14} />
+              My Posts
+            </Link>
+          )}
         </div>
 
         {/* Right side */}
@@ -91,6 +97,7 @@ export default function Navbar() {
             <Wrench size={15} /> Services
           </Link>
           {user && <>
+            <Link href="/dashboard" className={`${styles.mobileLink} ${isActive("/dashboard") ? styles.mobileLinkActive : ""}`} onClick={() => setMenuOpen(false)}><LayoutDashboard size={14} /> My Posts</Link>
             <Link href="/marketplace/new" className={styles.mobileLink} onClick={() => setMenuOpen(false)}><Plus size={14} /> List an Item</Link>
             <Link href="/services/new" className={styles.mobileLink} onClick={() => setMenuOpen(false)}><Plus size={14} /> Offer a Service</Link>
           </>}
