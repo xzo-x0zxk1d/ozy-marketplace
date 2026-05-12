@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getCurrentUser, saveService, generateId } from "@/lib/storage";
-import { SERVICE_CATEGORIES, DELIVERY_TIMES, ServiceCategory } from "@/lib/types";
-import { ArrowLeft, Plus, Tag, AlertCircle, Loader2, Link as LinkIcon, Timer } from "lucide-react";
+import { SERVICE_CATEGORIES, DELIVERY_TIMES, SUPPORTED_GAMES, PAYMENT_METHODS, ServiceCategory, SupportedGame, PaymentMethod } from "@/lib/types";
+import { ArrowLeft, Plus, Tag, AlertCircle, Loader2, Link as LinkIcon, Timer, Gamepad2 } from "lucide-react";
 import Link from "next/link";
 import ImageUploader from "@/components/ImageUploader";
 import styles from "./page.module.css";
@@ -17,6 +17,9 @@ export default function NewServicePage() {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState<ServiceCategory>("Scripting");
   const [deliveryTime, setDeliveryTime] = useState("Negotiable");
+  const [game, setGame] = useState<SupportedGame>("Not Game-Specific");
+  const [selectedPayments, setSelectedPayments] = useState<PaymentMethod[]>([]);
+  const [negotiable, setNegotiable] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
   const [externalUrl, setExternalUrl] = useState("");
   const [useExternal, setUseExternal] = useState(false);
@@ -34,6 +37,10 @@ export default function NewServicePage() {
     else setUser(u);
   }, [router]);
 
+  const togglePayment = (m: PaymentMethod) => {
+    setSelectedPayments((prev) => prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]);
+  };
+
   const addTag = () => {
     const t = tagInput.trim().toLowerCase().replace(/\s+/g, "-");
     if (t && !tags.includes(t) && tags.length < 6) { setTags([...tags, t]); setTagInput(""); }
@@ -50,24 +57,17 @@ export default function NewServicePage() {
     if (!price.trim()) { setError("Price is required."); return; }
     setLoading(true);
     try {
-      const service = {
-        id: serviceId,
-        title: title.trim(),
-        description: description.trim(),
-        price: price.trim(),
-        category,
-        deliveryTime,
+      await saveService({
+        id: serviceId, title: title.trim(), description: description.trim(),
+        price: price.trim(), category, deliveryTime, game,
         imageUrl: finalImageUrl || undefined,
-        sellerUsername: u.username,
-        sellerDiscord: u.discordUsername,
-        createdAt: new Date().toISOString(),
-        tags,
-        views: 0, bumps: 0, rating: 0, reviews: 0,
-      };
-      await saveService(service);
-      router.push(`/services/${service.id}`);
+        sellerUsername: u.username, sellerDiscord: u.discordUsername,
+        createdAt: new Date().toISOString(), tags, views: 0, bumps: 0,
+        rating: 0, reviews: 0, paymentMethods: selectedPayments, negotiable,
+      });
+      router.push(`/services/${serviceId}`);
     } catch {
-      setError("Failed to publish service. Please try again.");
+      setError("Failed to publish. Please try again.");
       setLoading(false);
     }
   };
@@ -93,7 +93,7 @@ export default function NewServicePage() {
             </div>
             <div className={styles.field}>
               <label className={styles.label}>Description <span className={styles.req}>*</span></label>
-              <textarea placeholder="Describe what you offer, your experience, portfolio links, what's included..." value={description} onChange={(e) => setDescription(e.target.value)} rows={5} maxLength={800} className={styles.textarea} />
+              <textarea placeholder="Describe your service, experience, portfolio, what's included..." value={description} onChange={(e) => setDescription(e.target.value)} rows={5} maxLength={800} className={styles.textarea} />
               <span className={styles.count}>{description.length}/800</span>
             </div>
             <div className={styles.row}>
@@ -108,11 +108,36 @@ export default function NewServicePage() {
                 </select>
               </div>
               <div className={styles.field}>
-                <label className={styles.label}><Timer size={12} style={{display:"inline",marginRight:4}} />Delivery Time</label>
+                <label className={styles.label}><Timer size={12} style={{display:"inline",marginRight:4}} />Delivery</label>
                 <select value={deliveryTime} onChange={(e) => setDeliveryTime(e.target.value)}>
                   {DELIVERY_TIMES.map((d) => <option key={d}>{d}</option>)}
                 </select>
               </div>
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label}><Gamepad2 size={12} style={{display:"inline",marginRight:4}} />Game / Platform</label>
+              <select value={game} onChange={(e) => setGame(e.target.value as SupportedGame)}>
+                {SUPPORTED_GAMES.map((g) => <option key={g}>{g}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div className={styles.divider} />
+
+          <div className={styles.section}>
+            <h2 className={styles.sectionTitle}>Payment Methods</h2>
+            <div className={styles.paymentGrid}>
+              {PAYMENT_METHODS.map((m) => (
+                <button key={m} type="button"
+                  className={`${styles.paymentChip} ${selectedPayments.includes(m) ? styles.paymentActive : ""}`}
+                  onClick={() => togglePayment(m)}>{m}</button>
+              ))}
+            </div>
+            <div className={styles.toggleRow}>
+              <label className={styles.toggle}>
+                <input type="checkbox" checked={negotiable} onChange={(e) => setNegotiable(e.target.checked)} className={styles.checkInput} />
+                <span className={styles.toggleLabel}>Price negotiable</span>
+              </label>
             </div>
           </div>
 
@@ -120,7 +145,7 @@ export default function NewServicePage() {
 
           <div className={styles.section}>
             <div className={styles.imageSectionHeader}>
-              <h2 className={styles.sectionTitle}>Portfolio / Preview Image</h2>
+              <h2 className={styles.sectionTitle}>Portfolio / Preview</h2>
               <div className={styles.imageToggle}>
                 <button className={`${styles.toggleBtn} ${!useExternal ? styles.toggleActive : ""}`} onClick={() => setUseExternal(false)}>Upload</button>
                 <button className={`${styles.toggleBtn} ${useExternal ? styles.toggleActive : ""}`} onClick={() => setUseExternal(true)}><LinkIcon size={12} /> URL</button>
@@ -131,7 +156,7 @@ export default function NewServicePage() {
             ) : (
               <div className={styles.field}>
                 <input type="url" placeholder="https://i.imgur.com/..." value={externalUrl} onChange={(e) => setExternalUrl(e.target.value)} />
-                <span className={styles.fieldNote}>Link to a portfolio piece, example work, or service preview</span>
+                <span className={styles.fieldNote}>Link to a portfolio piece or example work</span>
                 {externalUrl && <div className={styles.imgPreview}><img src={externalUrl} alt="preview" className={styles.previewImg} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} /></div>}
               </div>
             )}
@@ -142,7 +167,7 @@ export default function NewServicePage() {
           <div className={styles.section}>
             <h2 className={styles.sectionTitle}><Tag size={16} /> Tags (optional)</h2>
             <div className={styles.tagRow}>
-              <input type="text" placeholder="e.g. lua, scripting, fast" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }} className={styles.tagInput} />
+              <input type="text" placeholder="e.g. lua, fast, cheap" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }} className={styles.tagInput} />
               <button className={styles.addTagBtn} onClick={addTag} disabled={tags.length >= 6}><Plus size={14} /></button>
             </div>
             {tags.length > 0 && (
@@ -157,7 +182,7 @@ export default function NewServicePage() {
 
           <div className={styles.discordNote}>
             <AlertCircle size={14} />
-            <span>Clients will DM you at <strong>{user?.discordUsername}</strong> on Discord to discuss their project and arrange payment.</span>
+            <span>Clients will DM you at <strong>{user?.discordUsername}</strong> on Discord.</span>
           </div>
 
           {error && <p className={styles.error}>{error}</p>}

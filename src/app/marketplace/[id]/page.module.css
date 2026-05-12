@@ -455,3 +455,100 @@
 }
 
 @keyframes spinAnim { to { transform: rotate(360deg); } }
+
+/* Top bar with back + copy link */
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.copyLinkBtn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.15s;
+  letter-spacing: 0.3px;
+}
+.copyLinkBtn:hover {
+  border-color: var(--red-accent);
+  color: var(--text);
+  background: var(--red-faint);
+}
+
+.gameBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(88,101,242,0.08);
+  border: 1px solid rgba(88,101,242,0.2);
+  color: #7289da;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 7px 14px;
+  border-radius: 8px;
+}
+
+.negBadge {
+  background: rgba(46,204,113,0.1);
+  border: 1px solid rgba(46,204,113,0.3);
+  color: #2ecc71;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tradeBadge {
+  background: rgba(241,196,15,0.1);
+  border: 1px solid rgba(241,196,15,0.3);
+  color: #f1c40f;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.paymentSection {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.paymentLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.paymentMethods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.paymentChip {
+  background: var(--panel2);
+  border: 1px solid var(--border-bright);
+  color: var(--text-dim);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 5px;
+}

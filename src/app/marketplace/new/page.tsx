@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getCurrentUser, saveListing, generateId } from "@/lib/storage";
-import { CATEGORIES, CONDITIONS, ListingCategory, ListingCondition } from "@/lib/types";
-import { ArrowLeft, Plus, Tag, AlertCircle, Loader2, Link as LinkIcon } from "lucide-react";
+import { CATEGORIES, CONDITIONS, SUPPORTED_GAMES, PAYMENT_METHODS, ListingCategory, ListingCondition, SupportedGame, PaymentMethod } from "@/lib/types";
+import { ArrowLeft, Plus, Tag, AlertCircle, Loader2, Link as LinkIcon, Gamepad2 } from "lucide-react";
 import Link from "next/link";
 import ImageUploader from "@/components/ImageUploader";
 import styles from "./page.module.css";
@@ -17,8 +17,12 @@ export default function NewListingPage() {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState<ListingCategory>("Limiteds");
   const [condition, setCondition] = useState<ListingCondition>("Mint");
-  const [imageUrl, setImageUrl] = useState("");       // uploaded supabase URL
-  const [externalUrl, setExternalUrl] = useState(""); // manual URL fallback
+  const [game, setGame] = useState<SupportedGame>("Roblox (General)");
+  const [selectedPayments, setSelectedPayments] = useState<PaymentMethod[]>([]);
+  const [negotiable, setNegotiable] = useState(false);
+  const [tradeOnly, setTradeOnly] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
+  const [externalUrl, setExternalUrl] = useState("");
   const [useExternal, setUseExternal] = useState(false);
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -34,13 +38,15 @@ export default function NewListingPage() {
     else setUser(u);
   }, [router]);
 
+  const togglePayment = (m: PaymentMethod) => {
+    setSelectedPayments((prev) => prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]);
+  };
+
   const addTag = () => {
     const t = tagInput.trim().toLowerCase().replace(/\s+/g, "-");
     if (t && !tags.includes(t) && tags.length < 6) { setTags([...tags, t]); setTagInput(""); }
   };
-
   const removeTag = (t: string) => setTags(tags.filter((x) => x !== t));
-
   const finalImageUrl = useExternal ? externalUrl.trim() : imageUrl;
 
   const submit = async () => {
@@ -50,28 +56,19 @@ export default function NewListingPage() {
     if (!title.trim()) { setError("Title is required."); return; }
     if (!description.trim()) { setError("Description is required."); return; }
     if (!price.trim()) { setError("Price is required."); return; }
-
     setLoading(true);
     try {
-      const listing = {
-        id: listingId,
-        title: title.trim(),
-        description: description.trim(),
-        price: price.trim(),
-        category,
-        condition,
+      await saveListing({
+        id: listingId, title: title.trim(), description: description.trim(),
+        price: price.trim(), category, condition, game,
         imageUrl: finalImageUrl || undefined,
-        sellerUsername: u.username,
-        sellerDiscord: u.discordUsername,
-        createdAt: new Date().toISOString(),
-        tags,
-        views: 0,
-        bumps: 0,
-      };
-      await saveListing(listing);
-      router.push(`/marketplace/${listing.id}`);
+        sellerUsername: u.username, sellerDiscord: u.discordUsername,
+        createdAt: new Date().toISOString(), tags, views: 0, bumps: 0,
+        paymentMethods: selectedPayments, tradeOnly, negotiable,
+      });
+      router.push(`/marketplace/${listingId}`);
     } catch {
-      setError("Failed to publish listing. Please try again.");
+      setError("Failed to publish. Please try again.");
       setLoading(false);
     }
   };
@@ -98,13 +95,13 @@ export default function NewListingPage() {
             </div>
             <div className={styles.field}>
               <label className={styles.label}>Description <span className={styles.req}>*</span></label>
-              <textarea placeholder="Describe your item — condition details, what's included, trade preferences..." value={description} onChange={(e) => setDescription(e.target.value)} rows={4} maxLength={500} className={styles.textarea} />
+              <textarea placeholder="Describe your item — condition, what's included, trade preferences..." value={description} onChange={(e) => setDescription(e.target.value)} rows={4} maxLength={500} className={styles.textarea} />
               <span className={styles.count}>{description.length}/500</span>
             </div>
             <div className={styles.row}>
               <div className={styles.field}>
-                <label className={styles.label}>Price / Asking <span className={styles.req}>*</span></label>
-                <input type="text" placeholder="e.g. 1500 Robux or $5 PayPal" value={price} onChange={(e) => setPrice(e.target.value)} />
+                <label className={styles.label}>Price <span className={styles.req}>*</span></label>
+                <input type="text" placeholder="e.g. 1500 Robux or $5" value={price} onChange={(e) => setPrice(e.target.value)} />
               </div>
               <div className={styles.field}>
                 <label className={styles.label}>Category</label>
@@ -119,6 +116,43 @@ export default function NewListingPage() {
                 </select>
               </div>
             </div>
+
+            {/* Game selector */}
+            <div className={styles.field}>
+              <label className={styles.label}><Gamepad2 size={12} style={{display:"inline",marginRight:4}} />Game / Platform</label>
+              <select value={game} onChange={(e) => setGame(e.target.value as SupportedGame)}>
+                {SUPPORTED_GAMES.map((g) => <option key={g}>{g}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div className={styles.divider} />
+
+          {/* Payment & Options */}
+          <div className={styles.section}>
+            <h2 className={styles.sectionTitle}>Payment Methods</h2>
+            <div className={styles.paymentGrid}>
+              {PAYMENT_METHODS.map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  className={`${styles.paymentChip} ${selectedPayments.includes(m) ? styles.paymentActive : ""}`}
+                  onClick={() => togglePayment(m)}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+            <div className={styles.toggleRow}>
+              <label className={styles.toggle}>
+                <input type="checkbox" checked={negotiable} onChange={(e) => setNegotiable(e.target.checked)} className={styles.checkInput} />
+                <span className={styles.toggleLabel}>Price negotiable</span>
+              </label>
+              <label className={styles.toggle}>
+                <input type="checkbox" checked={tradeOnly} onChange={(e) => setTradeOnly(e.target.checked)} className={styles.checkInput} />
+                <span className={styles.toggleLabel}>Trade only (no cash)</span>
+              </label>
+            </div>
           </div>
 
           <div className={styles.divider} />
@@ -128,41 +162,17 @@ export default function NewListingPage() {
             <div className={styles.imageSectionHeader}>
               <h2 className={styles.sectionTitle}>Item Image</h2>
               <div className={styles.imageToggle}>
-                <button
-                  className={`${styles.toggleBtn} ${!useExternal ? styles.toggleActive : ""}`}
-                  onClick={() => setUseExternal(false)}
-                >
-                  Upload
-                </button>
-                <button
-                  className={`${styles.toggleBtn} ${useExternal ? styles.toggleActive : ""}`}
-                  onClick={() => setUseExternal(true)}
-                >
-                  <LinkIcon size={12} /> URL
-                </button>
+                <button className={`${styles.toggleBtn} ${!useExternal ? styles.toggleActive : ""}`} onClick={() => setUseExternal(false)}>Upload</button>
+                <button className={`${styles.toggleBtn} ${useExternal ? styles.toggleActive : ""}`} onClick={() => setUseExternal(true)}><LinkIcon size={12} /> URL</button>
               </div>
             </div>
-
             {!useExternal ? (
-              <ImageUploader
-                listingId={listingId}
-                onUploaded={(url) => setImageUrl(url || "")}
-                currentUrl={imageUrl || undefined}
-              />
+              <ImageUploader listingId={listingId} onUploaded={(url) => setImageUrl(url || "")} currentUrl={imageUrl || undefined} />
             ) : (
               <div className={styles.field}>
-                <input
-                  type="url"
-                  placeholder="https://tr.rbxcdn.com/..."
-                  value={externalUrl}
-                  onChange={(e) => setExternalUrl(e.target.value)}
-                />
-                <span className={styles.fieldNote}>Paste a direct image link (Roblox CDN, Imgur, etc.) — permanent, no expiry</span>
-                {externalUrl && (
-                  <div className={styles.imgPreview}>
-                    <img src={externalUrl} alt="preview" className={styles.previewImg} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                  </div>
-                )}
+                <input type="url" placeholder="https://tr.rbxcdn.com/..." value={externalUrl} onChange={(e) => setExternalUrl(e.target.value)} />
+                <span className={styles.fieldNote}>Paste a direct image link — permanent, no expiry</span>
+                {externalUrl && <div className={styles.imgPreview}><img src={externalUrl} alt="preview" className={styles.previewImg} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} /></div>}
               </div>
             )}
           </div>
@@ -173,14 +183,12 @@ export default function NewListingPage() {
           <div className={styles.section}>
             <h2 className={styles.sectionTitle}><Tag size={16} /> Tags (optional)</h2>
             <div className={styles.tagRow}>
-              <input type="text" placeholder="Add a tag and press Enter" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }} className={styles.tagInput} />
+              <input type="text" placeholder="e.g. limited, rare, cheap" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }} className={styles.tagInput} />
               <button className={styles.addTagBtn} onClick={addTag} disabled={tags.length >= 6}><Plus size={14} /></button>
             </div>
             {tags.length > 0 && (
               <div className={styles.tagList}>
-                {tags.map((t) => (
-                  <span key={t} className={styles.tagChip}>#{t}<button onClick={() => removeTag(t)} className={styles.removeTag}>×</button></span>
-                ))}
+                {tags.map((t) => <span key={t} className={styles.tagChip}>#{t}<button onClick={() => removeTag(t)} className={styles.removeTag}>×</button></span>)}
               </div>
             )}
             <span className={styles.fieldNote}>{tags.length}/6 tags</span>
@@ -190,7 +198,7 @@ export default function NewListingPage() {
 
           <div className={styles.discordNote}>
             <AlertCircle size={14} />
-            <span>Buyers will DM you at <strong>{user?.discordUsername}</strong> on Discord to arrange payment and delivery.</span>
+            <span>Buyers will DM you at <strong>{user?.discordUsername}</strong> on Discord.</span>
           </div>
 
           {error && <p className={styles.error}>{error}</p>}
